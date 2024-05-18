@@ -22,6 +22,7 @@ const getAllStudentsFromDB = async () => {
   return result;
 };
 
+
 // only with student id, not objectId
 const getSingleStudentFromDB = async (id: string) => {
   const result = await Student.findOne({ id });

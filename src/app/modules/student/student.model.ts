@@ -8,7 +8,8 @@ import {
   TStudent,
   TUserName,
 } from './student.interface';
-// import validator from 'validator';
+import bcrypt from "bcrypt";
+import config from '../../config';
 
 // sub schema
 const userNameSchema = new Schema<TUserName>({
@@ -80,6 +81,7 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 // main schema
 const studentSchema = new Schema<TStudent, StudentModel>({
   id: { type: String, required: true, unique: true },
+  password: { type: String, required: true, unique: true, maxlength:[20, 'Password can not be more than 20 charecters'] },
   name: {
     type: userNameSchema,
     required: true,
@@ -126,6 +128,22 @@ const studentSchema = new Schema<TStudent, StudentModel>({
     default: 'active',
   },
 });
+
+
+studentSchema.pre('save', async function(next){
+  // console.log(this, 'pre hook: we will save data')
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this;
+  user.password = await bcrypt.hash(user.password, Number(config.bcrypt_salt_rounds));
+  next();
+});
+
+
+
+studentSchema.post('save', function(){
+  console.log(this, 'post hook: we have saved data')
+})
+
 
 
 // creating a custom static method
